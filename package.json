@@ -1,0 +1,22 @@
+{
+  "name": "storageappbackend",
+  "version": "1.0.0",
+  "description": "Backend for storage",
+  "main": "index.js",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongodb": "^3.6.3",
+    "mongoose": "^5.10.13"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon ./src/index.js"
+  },
+  "author": "eugeniy.bondarenko@gmail.com",
+  "license": "ISC"
+}
