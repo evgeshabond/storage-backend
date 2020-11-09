@@ -7,7 +7,8 @@ const articleSchema = new Schema(
         name: {
             type: String,
             required: true,
-            trim: true
+            trim: true,
+            lowercase: true
         },
         barcode: {
             type: Number,
@@ -18,14 +19,19 @@ const articleSchema = new Schema(
         location: {
             type: String,
             required: true,
-            trim: true
+            trim: true,
+            lowercase: true
         },
         owner: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'user'
+            ref: 'User'
         }
     },
-    { timestamps: true }
+    {
+        timestamps: true,
+        toObject: { virtuals: true },
+        toJSON: { virtuals: true }
+      }
 )
 
 articleSchema.virtual('changes', {

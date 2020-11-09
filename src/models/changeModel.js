@@ -7,7 +7,13 @@ const changeSchema = new Schema(
         location: {
             type: String,
             required: true,
-            trim: true
+            trim: true,
+            lowercase: true
+        },
+        comment: {
+            type: String,
+            trim: true,
+            lowercase: true
         },
         owner: {
             type: mongoose.Schema.Types.ObjectId,
@@ -15,10 +21,14 @@ const changeSchema = new Schema(
         },
         article: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Article'
+            ref: 'article'
         }
     },
-    { timestamps: true }
+    {
+        timestamps: true,
+        toObject: { virtuals: true },
+        toJSON: { virtuals: true }
+      }
 )
 
 const Change = mongoose.model('change', changeSchema)

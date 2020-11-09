@@ -1,11 +1,12 @@
 const express = require('express')
 const User = require ('../models/userModel')
+const bcryptjs = require("bcryptjs");
 
 const auth = require('../middleware/auth')
 
 const router = express.Router()
 
-//Create user
+// Create user
 router.post('/users',auth ,async (req, res) => {
     if (!req.user || req.user.login != 'admin') {
         console.log('you are not admin')
@@ -22,6 +23,8 @@ router.post('/users',auth ,async (req, res) => {
         res.status(400).send(e.message)
     }
 })
+
+
 
 //Update user
 router.patch('/users/me', auth, async(req, res) => {
@@ -86,15 +89,20 @@ router.post('/users/login', async (req, res) => {
         const token = await user.createAuthToken()
         res.send({user, token})
     } catch(e) {
-        res.status(400).send('Unable to login')
+        res.status(400).send(e.message)
     }
 })
 
 //Get all users
-router.get('/users', async (req, res) => {
+router.get('/users', auth, async (req, res) => {
+    if (!req.user) return res.status(403).send('Access denied')
     try {
-        const users = await User.find({})
-        res.send(users)
+        const users = await User.find({}).
+        populate('articles').exec(function (e, users) {
+            users.forEach((user) => user.tokens = [])
+            res.send(users)
+        })
+
     } catch(e) {
         res.status(500).send(e.message)
     }
@@ -109,6 +117,20 @@ router.post('/users/logoutAll', auth, async (req, res) => {
     } catch(e) {
         res.status(500).send('Logout from all devices failed')
     }
+})
+
+//Get user info
+router.get('/users/me', auth, async (req, res) => {
+    if (!req.user) return res.status(404).send('User is not found')
+    try{
+        let user = req.user;
+        await user.populate('articles').populate('changes').execPopulate()
+        res.send(user)
+    } catch(e) {
+        res.status(500).send(e.message)
+    }
+    
+    
 })
 
 module.exports = router;
