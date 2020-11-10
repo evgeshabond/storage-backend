@@ -88,7 +88,6 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-userSchema.toJSON()
 
 
 const User = mongoose.model("User", userSchema);
