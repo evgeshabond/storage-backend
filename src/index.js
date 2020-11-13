@@ -17,6 +17,7 @@ app.use(articleRouter)
 app.use(changeRouter)
 app.use(cors())
 
+
 app.get('/',  (req, res) => {
     console.log('got request')
     res.send('HI')
