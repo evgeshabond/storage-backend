@@ -29,7 +29,7 @@ router.post('/users',auth ,async (req, res) => {
 //Update user
 router.patch('/users/me', auth, async(req, res) => {
     const updatesList = Object.keys(req.body)
-    const allowedUpdatesList = ['login','password' ]
+    const allowedUpdatesList = ['login','password']
 
     const isValid = updatesList.every((update) => allowedUpdatesList.includes(update))
 
@@ -85,24 +85,35 @@ router.patch('/users/:id', auth, async(req, res) => {
 //User login
 router.post('/users/login', async (req, res) => {
     try{
+        console.log(req)
         const user = await User.findByCredentials(req.body.login, req.body.password)
         const token = await user.createAuthToken()
-        res.send({user, token})
+        console.log(user, token)
+        res.status(200).send({user, token})
     } catch(e) {
         res.status(400).send(e.message)
     }
 })
 
-//Get all users
+//Get all users 
+// ?changesLimit
 router.get('/users', auth, async (req, res) => {
-    if (!req.user) return res.status(403).send('Access denied')
+    if (!req.user || req.user.login != 'admin') {
+        console.log('you are not admin')
+        return res.status(403).send('Access denied')
+
+    }
     try {
         const users = await User.find({}).
-        populate('articles').exec(function (e, users) {
-            users.forEach((user) => user.tokens = [])
-            res.send(users)
-        })
-
+            populate('articles').
+            populate({
+                path: 'changes',
+                options: {
+                    limit: parseInt(req.query.changesLimit)
+                }
+            })
+        users.forEach((user) => user.tokens = [])
+        res.send(users)
     } catch(e) {
         res.status(500).send(e.message)
     }
@@ -124,7 +135,14 @@ router.get('/users/me', auth, async (req, res) => {
     if (!req.user) return res.status(404).send('User is not found')
     try{
         let user = req.user;
-        await user.populate('articles').populate('changes').execPopulate()
+        await user.populate('articles').
+        populate({
+            path: 'changes',
+            options: {
+                limit: parseInt(req.query.changesLimit)
+            }
+        }).execPopulate()
+        user.tokens = []
         res.send(user)
     } catch(e) {
         res.status(500).send(e.message)

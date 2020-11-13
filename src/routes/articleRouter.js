@@ -36,11 +36,20 @@ router.post('/articles', auth, async (req, res) => {
     }
 })
 
+//Get user's articles?completed=true
+//Get user's articles?completed=true&limit=10&skip=20
+//Get user's articles?csortBy=completed:desc
 //get all articles
 router.get('/articles', auth, async (req, res) => {
     if (!req.user) return res.status(403).send('Access denied')
     try{
-        const articles = await Article.find({}).populate('owner', '-tokens').populate('changes')
+        const articles = await Article.find({}).populate('owner', '-tokens').
+        populate({
+            path: 'changes',
+            options: {
+                limit: parseInt(req.query.changesLimit)
+            }
+        })
         if (!articles || articles.length == 0) return res.status(404).send('No articles found')
     
         res.send(articles)
@@ -75,10 +84,18 @@ router.patch('/articles/update/:id', auth, async(req, res) => {
         updatesList.forEach((update) => {
             article[update] = req.body[update]
         })
+        const newLocation = req.body.location || 'not updated'
+        const change = new Change({
+            location: newLocation,
+            comment: 'ADMIN CHANGED ARTICLE',
+            owner: req.user._id,
+            article: article._id
+        })
         await article.save()
+        await change.save()
         res.send('Article modified')
     } catch(e) {
-        res.status(500).send("Article not modified")
+        res.status(500).send(e.message)
     }
 
 })

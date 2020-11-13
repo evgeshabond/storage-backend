@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const port = process.env.PORT || 3000;
+const cors = require('cors')
 
 //db
 require('./db/mongoose')
@@ -14,9 +15,11 @@ app.use(express.json())
 app.use(userRouter)
 app.use(articleRouter)
 app.use(changeRouter)
+app.use(cors())
 
-app.get('/', (req, res) => {
-    res.send('Hello WORLD!!!!')
+app.get('/',  (req, res) => {
+    console.log('got request')
+    res.send('HI')
 })
 
 app.listen(port, () => {
