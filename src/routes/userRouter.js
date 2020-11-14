@@ -85,13 +85,12 @@ router.patch('/users/:id', auth, async(req, res) => {
 //User login
 router.post('/users/login', async (req, res) => {
     try{
-        console.log(req)
+        // console.log(req.body)
         const user = await User.findByCredentials(req.body.login, req.body.password)
         const token = await user.createAuthToken()
-        console.log(user, token)
         res.status(200).send({user, token})
     } catch(e) {
-        res.status(400).send(e.message)
+        res.status(404).send('Failed to log in')
     }
 })
 
