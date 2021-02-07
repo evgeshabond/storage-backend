@@ -36,9 +36,7 @@ router.post('/articles', auth, async (req, res) => {
     }
 })
 
-//Get user's articles?completed=true
-//Get user's articles?completed=true&limit=10&skip=20
-//Get user's articles?csortBy=completed:desc
+//Get user's articles?changesLimit=12
 //get all articles
 router.get('/articles', auth, async (req, res) => {
     if (!req.user) return res.status(403).send('Access denied')
